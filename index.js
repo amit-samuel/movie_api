@@ -1,9 +1,11 @@
-const express = require('express'),
-    //morgan = require('morgan');
-    podyParser = require('body-parser'),
-    uuid = require('uuid');
+const express = require("express"),
+    bodyParser = require("body-parser"),
+    uuid = require("uuid");
+const morgan = require("morgan");
 const app = express();
-//app.use(morgan('common'));
+
+app.use(bodyParser.json());
+app.use(morgan("common"));
 
 //movie Object
 let movies = [
@@ -11,129 +13,45 @@ let movies = [
         id: 1,
         name: 'Bad Boys',
         year: '1995',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
+        director: {
+            nameDir: "Michael Bay",
+            bio: "Directors Guild of America Award für den besten Regisseur für Werbefilme, MEHR",
+            birthday: "17. Februar 1965",
         }
     },
     {
         id: 2,
-        name: 'Bad Boys for life',
-        year: '2020',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
+        name: 'Lord of the Rings',
+        year: '2001',
+        director: {
+            nameDir: "Peter Jackson",
+            bio: "Oscar, Saturn Award",
+            birthday: "31. Oktober 1961",
         }
     },
     {
         id: 3,
-        name: 'Lord of the Rings',
-        year: '2001',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 4,
-        name: 'Lord of the Rings 2',
-        year: '2002',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 5,
-        name: 'Lord of the Rings 3',
-        year: '2003',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 6,
         name: 'Star Wars IV',
         year: '1977',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 7,
-        name: 'Star Wars V',
-        year: '1980',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 8,
-        name: 'Star Wars VI',
-        year: '1983',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 9,
-        name: 'Star Wars I',
-        year: '1999',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 10,
-        name: 'Star Wars II',
-        year: '2002',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 11,
-        name: 'Star Wars III',
-        year: '2005',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 12,
-        name: 'Star Wars: The Force Awakens',
-        year: '2015',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 13,
-        name: 'Star Wars: The Last Jedi',
-        year: '2017',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
-        }
-    },
-    {
-        id: 14,
-        name: 'Star Wars: The Rise of Skywalker',
-        year: '2019',
-        zahlen: {
-            Budget: 19,
-            Box : 389.1
+        director: {
+            nameDir: "George",
+            bio: "George Walton Lucas Jr. ist ein US-amerikanischer Produzent, Drehbuchautor und Regisseur. Seine erfolgreichsten Filmprojekte waren vor allem die Star-Wars-Filmreihe und die Indiana-Jones-Tetralogie",
+            birthday: "14. Mai 1944 ",
         }
     }
+];
 
+let users = [
+    {
+        name: 'test',
+        password: 'test',
+        email: 'test@test.de',
+        phone: '0160000000',
+        birthday: '11.03.1985',
+        favoritesMovies: {
+        },
+        id: 1
+    }
 ];
 
 // Get list of movies
@@ -141,53 +59,81 @@ app.get('/movies', (req, res) => {
     res.json(movies);
 });
 
-//Get data about a single movie by ID
-app.get('/movies/:id', (req, res) =>{
+//Get data about a single movie by name
+app.get('/movies/:name', (req, res) => {
     res.json(movies.find((movie) => {
-        return movies.id === req.params.id;
+        return movie.name === req.params.name;
     }));
 });
 
-//Get release date Of a movie
-app.get('/movies/:year', (req, res) => {
-   res.json(movies.find((year) => {return movies.year = req.params.year}));
+//Return data about a director
+app.get('/:movie/director/:nameDir', (req, res) => {
+    let dir = movies.find((dir) => { return dir.director.nameDir === req.params.nameDir});
+    console.log(dir);
+    if(dir){
+        res.status(201).send("Director name was found" + "\n " + dir.director.nameDir + "\n"  + dir.director.birthday);
+    } else {
+        res.status(404).send('Director with the name ' + req.params.nameDir + ' was not found.');
+    }
 });
 
 
-// Add movie
-app.post('/movies', (req, res) => {
-    let newMovie = req.body;
 
-    if (!newMovie.name) {
-        const message = 'Missing name in request body';
+
+
+
+//User
+//Get data about a single user by name
+app.get('/users/:name', (req, res) => {
+    res.json(users.find((user) => {
+        return user.name === req.params.name;
+    }));
+});
+
+//Allow new users to register
+app.post('/users', (req, res) => {
+    let newUser = req.body;
+    if(!newUser.name){
+        const message = "Missing name in request body";
         res.status(400).send(message);
     } else {
-        newMovie.id = uuid.v4();
-        movies.push(newMovie);
-        res.status(201).send(newMovie);
+        newUser.id = uuid.v4();
+        users.push(newUser);
+        res.status(201).send(newUser);
     }
 });
 
-//Remove a movie by id
-app.delete('/movies/:id', (req, res) => {
-    let movie = movies.find((movie) => { return movie.id === req.params.id});
-    if(movie){
-        movies = movies.filter((obj) => { return obj.id === req.params.id});
-        res.status(201).send('Movie '+ req.params.id + ' was deleted');
+
+//Allow existing users to deregister
+app.delete('/users/:name', (req, res) => {
+    let user = users.find((user) => { return user.name === req.params.name});
+    if(user){
+        users = users.filter((obj) => {return user.name === req.params.name});
+        res.status(201).send('User ' + req.params.name + ' was deleted');
     }
 });
 
-//Update a zahlen name in movie
-
-
-
-
-
-//error hendeling
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+//Allow users to update their user info
+app.put('/user/:id', (req, res) => {
+    let user = users.find((user) => {return user.id === req.params.id});
+    if(user){
+        user.name.update(req.params.name);
+        user.password.update(req.params.password);
+        user.email.update(req.params.email);
+        user.phone.update(req.params.phone);
+        user.birthday.update(req.params.birthday);
+        user.favoritesMovies.update(req.params.favoritesMovies);
+        res.status(201).send('User ' + req.params.name + " was updated");
+    } else {
+        res.status(404).send('User ' + req.params.name + 'was not found.')
+    }
 });
+
+
+
+
+
+
 
 //use express public
 app.use('/documentation.html', express.static('public'));
