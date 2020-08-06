@@ -112,7 +112,7 @@ app.delete('/users/:name', (req, res) => {
         res.status(201).send('User ' + req.params.name + ' was deleted');
     }
 });
-
+//not working
 //Allow users to update their user info
 app.put('/user/:id', (req, res) => {
     let user = users.find((user) => {return user.id === req.params.id});
@@ -126,6 +126,23 @@ app.put('/user/:id', (req, res) => {
         res.status(201).send('User ' + req.params.name + " was updated");
     } else {
         res.status(404).send('User ' + req.params.name + 'was not found.')
+    }
+});
+
+
+//not Working
+//Allow users to add a movie to their list of favorites
+app.post('/users/:name/favoritesMovies/:name', (req, res) => {
+    let user = users.find((user) => {
+        console.log(user.name);
+        return user.name === req.params.name});
+    let newFavorit = req.params.name;
+    if(!newFavorit){
+        const message = "Missing name in request body";
+        res.status(400).send(message);
+    } else {
+        user.favoritesMovies.push(newFavorit);
+        res.status(201).send(newFavorit);
     }
 });
 
