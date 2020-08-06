@@ -92,7 +92,7 @@ app.get('/users/:name', (req, res) => {
 
 //Allow new users to register
 app.post('/users', (req, res) => {
-    let newUser = req.body;
+    let newUser = req.params.body;
     if(!newUser.name){
         const message = "Missing name in request body";
         res.status(400).send(message);
@@ -112,41 +112,48 @@ app.delete('/users/:name', (req, res) => {
         res.status(201).send('User ' + req.params.name + ' was deleted');
     }
 });
-//not working
-//Allow users to update their user info
-app.put('/user/:id', (req, res) => {
+//Allow users to update a user info
+app.put('/users/:name', (req, res) => {
     let user = users.find((user) => {return user.id === req.params.id});
     if(user){
-        user.name.update(req.params.name);
-        user.password.update(req.params.password);
-        user.email.update(req.params.email);
-        user.phone.update(req.params.phone);
-        user.birthday.update(req.params.birthday);
-        user.favoritesMovies.update(req.params.favoritesMovies);
+            user.name =  req.body.name,
+            user.password = req.body.password,
+            user.email = req.body.email,
+            user.birthday = req.body.birthday,
         res.status(201).send('User ' + req.params.name + " was updated");
     } else {
-        res.status(404).send('User ' + req.params.name + 'was not found.')
+        res.status(404).send('User ' + req.params.name + ' was not found.')
     }
 });
 
 
-//not Working
 //Allow users to add a movie to their list of favorites
 app.post('/users/:name/favoritesMovies/:name', (req, res) => {
     let user = users.find((user) => {
-        console.log(user.name);
         return user.name === req.params.name});
     let newFavorit = req.params.name;
     if(!newFavorit){
         const message = "Missing name in request body";
         res.status(400).send(message);
     } else {
-        user.favoritesMovies.push(newFavorit);
+        req.params.name.favoritesMovies.push(newFavorit);
         res.status(201).send(newFavorit);
     }
 });
 
-
+//Allow users to delete a movie to their list of favorites
+app.delete('/users/:name/favoritesMovies/:name', (req, res) => {
+    let user = users.find((user) => {
+        return user.name === req.params.name});
+    let notafavorit = req.params.name;
+    if(!notafavorit){
+        const message = "Missing name in request body";
+        res.status(400).send(message);
+    } else {
+        req.params.name.favoritesMovies.delete(notafavorit);
+        res.status(201).send(notafavorit);
+    }
+});
 
 
 
