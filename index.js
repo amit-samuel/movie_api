@@ -10,7 +10,7 @@ app.use(morgan("common"));
 //movie Object
 let movies = [
     {
-        id: 1,
+        movie_id: 1,
         name: 'Bad Boys',
         year: '1995',
         director: {
@@ -20,7 +20,7 @@ let movies = [
         }
     },
     {
-        id: 2,
+        movie_id: 2,
         name: 'Lord of the Rings',
         year: '2001',
         director: {
@@ -30,7 +30,7 @@ let movies = [
         }
     },
     {
-        id: 3,
+        movie_id: 3,
         name: 'Star Wars IV',
         year: '1977',
         director: {
@@ -43,14 +43,15 @@ let movies = [
 
 let users = [
     {
+        id: 1,
         name: 'test',
         password: 'test',
         email: 'test@test.de',
         phone: '0160000000',
         birthday: '11.03.1985',
-        favoritesMovies: {
+        favorites: {
+
         },
-        id: 1
     }
 ];
 
@@ -113,14 +114,14 @@ app.delete('/users/:name', (req, res) => {
     }
 });
 //Allow users to update a user info
-app.put('/users/:name', (req, res) => {
+app.put('/users/:id', (req, res) => {
     let user = users.find((user) => {return user.id === req.params.id});
     if(user){
             user.name =  req.body.name,
             user.password = req.body.password,
             user.email = req.body.email,
             user.birthday = req.body.birthday,
-        res.status(201).send('User ' + req.params.name + " was updated");
+            res.status(201).send('User ' + req.params.name + " was updated");
     } else {
         res.status(404).send('User ' + req.params.name + ' was not found.')
     }
@@ -128,34 +129,39 @@ app.put('/users/:name', (req, res) => {
 
 
 //Allow users to add a movie to their list of favorites
-app.post('/users/:name/favoritesMovies/:name', (req, res) => {
+app.post('/users/:name/favorites/:movie_id', (req, res) => {
     let user = users.find((user) => {
+        console.log(user.name);
         return user.name === req.params.name});
-    let newFavorit = req.params.name;
-    if(!newFavorit){
-        const message = "Missing name in request body";
-        res.status(400).send(message);
-    } else {
-        req.params.name.favoritesMovies.push(newFavorit);
-        res.status(201).send(newFavorit);
-    }
+    let favorite = movies.find((favorite) => (req, res) => {
+        console.log(favorite.movie_id)
+        return favorit.movie_id === req.params.movie_id});
+        if(user.favorites.includes(favorite.movie_id)){
+            res.params.favorites = user.favorites.push(favorite.movie_id);
+            res.status(201).send("Favorite is added. ");
+
+        } else {
+            const message = "Error";
+            res.status(400).send(message);
+        }
+
 });
+
 
 //Allow users to delete a movie to their list of favorites
-app.delete('/users/:name/favoritesMovies/:name', (req, res) => {
+app.delete('/users/:name/favorites/:movie_id', (req, res) => {
     let user = users.find((user) => {
         return user.name === req.params.name});
-    let notafavorit = req.params.name;
-    if(!notafavorit){
-        const message = "Missing name in request body";
-        res.status(400).send(message);
+    let favorit = movies.find((favorit) => (req, res) => {
+        return favorit.movie_id === req.params.movie_id});
+    if(favorit){
+        user = users.filter((obj) => { return obj.favorites.movie_id !== req.params.favorites.movie_id });
+        res.status(201).send('User favorite ' + req.params.movie_id + ' was deleted.');
     } else {
-        req.params.name.favoritesMovies.delete(notafavorit);
-        res.status(201).send(notafavorit);
-    }
+        const message = "Error";
+        res.status(400).send(message);
+
 });
-
-
 
 
 
