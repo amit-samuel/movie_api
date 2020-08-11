@@ -160,7 +160,7 @@ app.delete('/users/:name/favorites/:movie_id', (req, res) => {
     } else {
         const message = "Error";
         res.status(400).send(message);
-
+    }
 });
 
 
