@@ -49,9 +49,7 @@ let users = [
         email: 'test@test.de',
         phone: '0160000000',
         birthday: '11.03.1985',
-        favorites: {
-
-        },
+        favorites: ["1", "2", "3"],
     }
 ];
 
@@ -115,7 +113,9 @@ app.delete('/users/:name', (req, res) => {
 });
 //Allow users to update a user info
 app.put('/users/:id', (req, res) => {
-    let user = users.find((user) => {return user.id === req.params.id});
+    console.log(req.params.id);
+    let user = users.find((user) => {return user.id == req.params.id});
+    console.log(user);
     if(user){
             user.name =  req.body.name,
             user.password = req.body.password,
@@ -131,36 +131,30 @@ app.put('/users/:id', (req, res) => {
 //Allow users to add a movie to their list of favorites
 app.post('/users/:name/favorites/:movie_id', (req, res) => {
     let user = users.find((user) => {
-        console.log(user.name);
-        return user.name === req.params.name});
-    let favorite = movies.find((favorite) => (req, res) => {
-        console.log(favorite.movie_id)
-        return favorit.movie_id === req.params.movie_id});
-        if(user.favorites.includes(favorite.movie_id)){
-            res.params.favorites = user.favorites.push(favorite.movie_id);
-            res.status(201).send("Favorite is added. ");
-
-        } else {
-            const message = "Error";
-            res.status(400).send(message);
+        const { movie_id} = req.params;
+        let exist = user.favorites.find(favoriteid => favoriteid == movie_id)
+        if(!exist){
+            user.favorites.push(movie_id);
+            return res.status(200).send('User favorite ' + movie_id + ' was added.');
         }
+        return res.status(200).send('User favorite already exist');
+
+    })
 
 });
-
 
 //Allow users to delete a movie to their list of favorites
 app.delete('/users/:name/favorites/:movie_id', (req, res) => {
     let user = users.find((user) => {
-        return user.name === req.params.name});
-    let favorit = movies.find((favorit) => (req, res) => {
-        return favorit.movie_id === req.params.movie_id});
-    if(favorit){
-        user = users.filter((obj) => { return obj.favorites.movie_id !== req.params.favorites.movie_id });
-        res.status(201).send('User favorite ' + req.params.movie_id + ' was deleted.');
-    } else {
-        const message = "Error";
-        res.status(400).send(message);
-    }
+        const { movie_id} = req.params;
+        const index = user.favorites.indexOf(movie_id);
+        if (index > -1) {
+            user.favorites.splice(index, 1);
+        }
+        console.log(user);
+        return res.status(200).send('User favorite deleted');
+
+    })
 });
 
 
