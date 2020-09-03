@@ -1,3 +1,10 @@
+const mongoose = require('mongoose');
+const Models = require('./models.js');
+
+const Movies = Models.Movie;
+const Users = Models.User;
+mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true });
+
 const express = require("express"),
     bodyParser = require("body-parser"),
     uuid = require("uuid");
@@ -7,55 +14,17 @@ const app = express();
 app.use(bodyParser.json());
 app.use(morgan("common"));
 
-//movie Object
-let movies = [
-    {
-        movie_id: 1,
-        name: 'Bad Boys',
-        year: '1995',
-        director: {
-            nameDir: "Michael Bay",
-            bio: "Directors Guild of America Award für den besten Regisseur für Werbefilme, MEHR",
-            birthday: "17. Februar 1965",
-        }
-    },
-    {
-        movie_id: 2,
-        name: 'Lord of the Rings',
-        year: '2001',
-        director: {
-            nameDir: "Peter Jackson",
-            bio: "Oscar, Saturn Award",
-            birthday: "31. Oktober 1961",
-        }
-    },
-    {
-        movie_id: 3,
-        name: 'Star Wars IV',
-        year: '1977',
-        director: {
-            nameDir: "George",
-            bio: "George Walton Lucas Jr. ist ein US-amerikanischer Produzent, Drehbuchautor und Regisseur. Seine erfolgreichsten Filmprojekte waren vor allem die Star-Wars-Filmreihe und die Indiana-Jones-Tetralogie",
-            birthday: "14. Mai 1944 ",
-        }
-    }
-];
-
-let users = [
-    {
-        id: 1,
-        name: 'test',
-        password: 'test',
-        email: 'test@test.de',
-        phone: '0160000000',
-        birthday: '11.03.1985',
-        favorites: ["1", "2", "3"],
-    }
-];
-
 // Get list of movies
+// Get all users
 app.get('/movies', (req, res) => {
-    res.json(movies);
+    Movies.find()
+        .then((Movies) => {
+            res.status(201).json(Movies);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+        });
 });
 
 //Get data about a single movie by name
@@ -82,6 +51,41 @@ app.get('/:movie/director/:nameDir', (req, res) => {
 
 
 //User
+//Add a user
+/* We’ll expect JSON in this format
+{
+  ID: Integer,
+  Username: String,
+  Password: String,
+  Email: String,
+  Birthday: Date
+}*/
+app.post('/users', (req, res) => {
+    Users.findOne({ userName: req.body.userName })
+        .then((user) => {
+            if (user) {
+                return res.status(400).send(req.body.userName + 'already exists');
+            } else {
+                Users
+                    .create({
+                        userName: req.body.userName,
+                        Password: req.body.Password,
+                        Email: req.body.Email,
+                        Birthday: req.body.Birthday
+                    })
+                    .then((user) =>{res.status(201).json(user) })
+                    .catch((error) => {
+                        console.error(error);
+                        res.status(500).send('Error: ' + error);
+                    })
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+        });
+});
+
 //Get data about a single user by name
 app.get('/users/:name', (req, res) => {
     res.json(users.find((user) => {
