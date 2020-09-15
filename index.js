@@ -8,6 +8,14 @@ const Movies = Models.Movie;
 const Users = Models.User;
 const passport = require('passport');
 require('./passport');
+const cors = require('cors');
+//app.use(cors());
+const bcrypt = require('bcrypt');
+const { check, validationResult } = require('express-validator');
+
+
+
+
 
 const uuid = require("uuid");
 
@@ -18,6 +26,35 @@ app.use(bodyParser.json());
 let auth = require('./auth')(app);
 
 
+let allowedOrigins = ['http://localhost:8080', 'http://testsite.com'];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if(!origin) return callback(null, true);
+        if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
+            let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+            return callback(new Error(message ), false);
+        }
+        return callback(null, true);
+    }
+}));
+
+
+let userSchema = mongoose.Schema({
+    userName: {type: String, required: true},
+    password: {type: String, required: true},
+    email: {type: String, required: true},
+    birthday: Date,
+    FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
+});
+
+userSchema.statics.hashPassword = (password) => {
+    return bcrypt.hashSync(password, 10);
+};
+
+userSchema.methods.validatePassword = function(password) {
+    return bcrypt.compareSync(password, this.Password);
+};
 // Get list of movies
 // Get all users
 app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -84,7 +121,8 @@ app.get("/movies/Director/:Name", passport.authenticate('jwt', { session: false 
 //User
 //Allow new users to register
 app.post("/users", (req, res) => {
-        //check the validation object for errors
+    let hashedPassword = Users.hashPassword(req.body.Password);
+    //check the validation object for errors
         Users.findOne({ Username: req.body.userName })
             .then((user) => {
                 if (user) {
@@ -96,19 +134,18 @@ app.post("/users", (req, res) => {
                         email: req.body.email,
                         birthday: req.body.birthday
                     })
-                        .then((user) => {
-                            res.status(201).json(user);
-                        })
+                        .then((user) => { res.status(201).json(user) })
                         .catch((error) => {
-                            res.status(500).send("Error: " + error);
+                            console.error(error);
+                            res.status(500).send('Error: ' + error);
                         });
                 }
             })
-            .catch((err) => {
-                res.status(500).send("Error: " + err);
+            .catch((error) => {
+                console.error(error);
+                res.status(500).send('Error: ' + error);
             });
-    }
-);
+});
 
 //Get data about a single user by name
 app.get('/users/:name',(req, res) => {
@@ -198,6 +235,7 @@ app.delete('/users/:name/movies/:_id', (req, res) => {
 app.use('/documentation.html', express.static('public'));
 
 // listen for requests
-app.listen(8080, () =>
-    console.log('Your app is listening on port 8080.')
-);
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0',() => {
+    console.log('Listening on Port ' + port);
+});
