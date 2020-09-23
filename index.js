@@ -4,20 +4,15 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const Models = require('./models.js');
-const Movies = Models.Movie;
-const Users = Models.User;
 const passport = require('passport');
 require('./passport');
 const cors = require('cors');
-//app.use(cors());
 const bcrypt = require('bcrypt');
 const { check, validationResult } = require('express-validator');
-
-
-
-
-
 const uuid = require("uuid");
+
+const Movies = Models.Movie;
+const Users = Models.User;
 
 //mongoose.connect('mongodb://localhost:27017/test', { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connect('process.env.CONNECTION_URI', { useNewUrlParser: true, useUnifiedTopology: true });
@@ -26,19 +21,38 @@ app.use(bodyParser.json());
 
 let auth = require('./auth')(app);
 
+let allowedOrigins = ['http://localhost:8080', 'http://testsite.com', 'https://intense-taiga-38394.herokuapp.com'];
 
-let allowedOrigins = ['http://localhost:8080', 'http://testsite.com'];
-
-app.use(cors({
-    origin: (origin, callback) => {
-        if(!origin) return callback(null, true);
-        if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
-            let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
-            return callback(new Error(message ), false);
-        }
-        return callback(null, true);
-    }
-}));
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true)
+            if (allowedOrigins.indexOf(origin) === -1) {
+                // If a specific origin isn’t found on the list of allowed origins
+                let message =
+                    'The CORS policy for this application doesn’t allow access from origin ' +
+                    origin
+                return callback(new Error(message), false)
+            }
+            return callback(null, true)
+        },
+    })
+)
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true)
+            if (allowedOrigins.indexOf(origin) === -1) {
+                // If a specific origin isn’t found on the list of allowed origins
+                let message =
+                    'The CORS policy for this application doesn’t allow access from origin ' +
+                    origin
+                return callback(new Error(message), false)
+            }
+            return callback(null, true)
+        },
+    })
+)
 
 
 let userSchema = mongoose.Schema({
@@ -230,7 +244,12 @@ app.delete('/users/:name/movies/:_id', (req, res) => {
 });
 
 
-
+/* error handling*/
+app.use(function (err, req, res, next) {
+    console.error(err.stack);
+    res.status(500).send("Error: Check your requested URL and try again.");
+    next();
+});
 
 //use express public
 app.use('/documentation.html', express.static('public'));
@@ -240,3 +259,5 @@ const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
     console.log('Listening on Port ' + port);
 });
+
+
