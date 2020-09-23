@@ -41,7 +41,9 @@ app.use(
 
  */
 
-
+app.get('/', (req, res) => {
+    res.send('<h1>' + '<b>Hallo World<b>' + '</h1>')
+})
 
 let userSchema = mongoose.Schema({
     userName: {type: String, required: true},
