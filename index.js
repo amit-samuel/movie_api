@@ -20,7 +20,7 @@ app.use(morgan("common"));
 app.use(bodyParser.json());
 
 let auth = require('./auth')(app);
-
+/*
 let allowedOrigins = ['http://localhost:8080', 'http://testsite.com', 'https://intense-taiga-38394.herokuapp.com'];
 
 app.use(
@@ -38,6 +38,8 @@ app.use(
         },
     })
 )
+
+ */
 app.use(
     cors({
         origin: (origin, callback) => {
