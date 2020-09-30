@@ -3,6 +3,7 @@ bodyParser = require("body-parser");
 uuid = require("uuid");
 const morgan = require("morgan");
 const app = express();
+require('dotenv').config()
 
 /* app.use initializations */
 app.use(bodyParser.json());
