@@ -1,43 +1,61 @@
 const express = require("express");
-const app = express();
+bodyParser = require("body-parser");
+uuid = require("uuid");
 const morgan = require("morgan");
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const Models = require('./models.js');
-const passport = require('passport');
-require('./passport');
-const cors = require('cors');
-const bcrypt = require('bcrypt');
-const { check, validationResult } = require('express-validator');
-const uuid = require("uuid");
+const app = express();
 
-const Movies = Models.Movie;
-const Users = Models.User;
-
-//mongoose.connect('mongodb://localhost:27017/test', { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connect('process.env.CONNECTION_URI', { useNewUrlParser: true, useUnifiedTopology: true });
-app.use(morgan("common"));
+/* app.use initializations */
 app.use(bodyParser.json());
+app.use(morgan("common")); /*Logging with Morgan*/
+app.use(express.static("public"));
 
-let auth = require('./auth')(app);
+/* install validator*/
+const { check, validationResult } = require("express-validator");
 
-let allowedOrigins = ['http://localhost:8080', 'http://testsite.com', 'https://intense-taiga-38394.herokuapp.com'];
+/*Authentication(passport) and Authorization(auth)*/
+const passport = require("passport");
+require("./passport");
+const auth = require("./auth")(app);
 
+/*Integrating Mongoose with a REST API*/
+const mongoose = require("mongoose");
+const Models = require("./models.js");
+Movies = Models.Movie;
+Users = Models.User;
+Genres = Models.Genre;
+Directors = Models.Director;
+
+/* Mongoose local data base connection*/
+/*mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true })*/
+
+/* MongoDB Atlas and Heroku data base connection*/
+mongoose.connect('process.env.CONNECTION_URI', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}); /* URL from MongoDB atlas*/
+
+/* installed CORS */
+const cors = require("cors");
 app.use(
     cors({
-        origin: (origin, callback) => {
-            if (!origin) return callback(null, true)
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
             if (allowedOrigins.indexOf(origin) === -1) {
-                // If a specific origin isn’t found on the list of allowed origins
+                /* If a specific origin is not found on the list of allowed origins*/
                 let message =
-                    'The CORS policy for this application doesn’t allow access from origin ' +
-                    origin
-                return callback(new Error(message), false)
+                    "The CORS policy for this application does not allow access from origin " +
+                    origin;
+                return callback(new Error(message), false);
             }
-            return callback(null, true)
+            return callback(null, true);
         },
     })
-)
+);
+
+
+let allowedOrigins = ['http://localhost:8080',
+    'http://testsite.com',
+    'https://intense-taiga-38394.herokuapp.com'];
 
 
 
@@ -45,21 +63,8 @@ app.get('/', (req, res) => {
     res.send('<h1>' + '<b>Hallo World<b>' + '</h1>')
 })
 
-let userSchema = mongoose.Schema({
-    userName: {type: String, required: true},
-    password: {type: String, required: true},
-    email: {type: String, required: true},
-    birthday: Date,
-    FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
-});
 
-userSchema.statics.hashPassword = (password) => {
-    return bcrypt.hashSync(password, 10);
-};
 
-userSchema.methods.validatePassword = function(password) {
-    return bcrypt.compareSync(password, this.Password);
-};
 // Get list of movies
 // Get all users
 app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -125,32 +130,49 @@ app.get("/movies/Director/:Name", passport.authenticate('jwt', { session: false 
 
 //User
 //Allow new users to register
-app.post("/users", (req, res) => {
-    let hashedPassword = Users.hashPassword(req.body.Password);
-    //check the validation object for errors
-        Users.findOne({ Username: req.body.userName })
+app.post(
+    "/users",
+    [
+        check("Username", "Username is required").isLength({ min: 4 }),
+        check(
+            "Username",
+            "Username contains non alphanumeric characters - not allowed"
+        ).isAlphanumeric(),
+        check("Password", "Password is required").not().isEmpty(),
+        check("Email", "Email does not appear to be valid").isEmail(),
+    ],
+    (req, res) => {
+        var errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+        var hashedPassword = Users.hashPassword(req.body.Password);
+        Users.findOne({ Username: req.body.Username })
             .then((user) => {
                 if (user) {
-                    return res.status(400).send(req.body.userName + "already exists");
+                    return res.status(400).send(req.body.Username + " already exists");
                 } else {
                     Users.create({
-                        userName: req.body.userName,
-                        password: req.body.password,
-                        email: req.body.email,
-                        birthday: req.body.birthday
+                        Username: req.body.Username,
+                        Password: hashedPassword,
+                        Email: req.body.Email,
+                        Birthday: req.body.Birthday,
                     })
-                        .then((user) => { res.status(201).json(user) })
+                        .then((user) => {
+                            res.status(201).json(user);
+                        })
                         .catch((error) => {
                             console.error(error);
-                            res.status(500).send('Error: ' + error);
+                            res.status(500).send("Error: " + error);
                         });
                 }
             })
             .catch((error) => {
                 console.error(error);
-                res.status(500).send('Error: ' + error);
+                res.status(500).send("Error: " + error);
             });
-});
+    }
+);
 
 //Get data about a single user by name
 app.get('/users/:name',(req, res) => {
@@ -176,22 +198,26 @@ app.delete('/users/:name',passport.authenticate('jwt', { session: false }),(req,
     }
 );
 //Allow users to update a user info
-
-app.put("/users/:userName", (req, res) => {
+app.put(
+    "/users/:Username",
+    passport.authenticate("jwt", { session: false }),
+    (req, res) => {
         Users.findOneAndUpdate(
-            { userName: req.params.userName },
+            { Username: req.params.Username },
             {
+                /*Allows User To Update Their Info*/
                 $set: {
-                    username: req.body.userName,
-                    password: req.body.password,
-                    email: req.body.email,
-                    birthday: req.body.birthday,
-                }
+                    Username: req.body.Username,
+                    Password: hashedPassword,
+                    Email: req.body.Email,
+                    Birthday: req.body.Birthday,
+                },
             },
             { new: true },
-            (err, updatedUser) => {
-                if (err) {
-                    res.status(201).send('User ' + req.params.name + " was updated");
+            function (error, updatedUser) {
+                if (error) {
+                    console.error(error);
+                    res.status(500).send("Error: " + error);
                 } else {
                     res.json(updatedUser);
                 }
