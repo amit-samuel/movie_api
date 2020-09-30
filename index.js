@@ -131,49 +131,33 @@ app.get("/movies/Director/:Name", passport.authenticate('jwt', { session: false 
 
 //User
 //Allow new users to register
-app.post(
-    "/users",
-    [
-        check("Username", "Username is required").isLength({ min: 4 }),
-        check(
-            "Username",
-            "Username contains non alphanumeric characters - not allowed"
-        ).isAlphanumeric(),
-        check("Password", "Password is required").not().isEmpty(),
-        check("Email", "Email does not appear to be valid").isEmail(),
-    ],
-    (req, res) => {
-        var errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() });
-        }
-        var hashedPassword = Users.hashPassword(req.body.Password);
-        Users.findOne({ Username: req.body.Username })
-            .then((user) => {
-                if (user) {
-                    return res.status(400).send(req.body.Username + " already exists");
-                } else {
-                    Users.create({
+app.post('/users', (req, res) => {
+    let hashedPassword = Users.hashPassword(req.body.Password);
+    Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
+        .then((user) => {
+            if (user) {
+                //If the user is found, send a response that it already exists
+                return res.status(400).send(req.body.Username + ' already exists');
+            } else {
+                Users
+                    .create({
                         Username: req.body.Username,
                         Password: hashedPassword,
                         Email: req.body.Email,
-                        Birthday: req.body.Birthday,
+                        Birthday: req.body.Birthday
                     })
-                        .then((user) => {
-                            res.status(201).json(user);
-                        })
-                        .catch((error) => {
-                            console.error(error);
-                            res.status(500).send("Error: " + error);
-                        });
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-                res.status(500).send("Error: " + error);
-            });
-    }
-);
+                    .then((user) => { res.status(201).json(user) })
+                    .catch((error) => {
+                        console.error(error);
+                        res.status(500).send('Error: ' + error);
+                    });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+        });
+});
 
 //Get data about a single user by name
 app.get('/users/:name',(req, res) => {
