@@ -1,37 +1,41 @@
 import React from 'react';
-import axios from 'axios';
 
-export class MainView extends React.Component {
+export class MovieView extends React.Component {
 
-    // One of the "hooks" available in a React Component
-    componentDidMount() {
-        axios.get('https://myflixmovieapp.herokuapp.com//movies')
-            .then(response => {
-                // Assign the result to the state
-                this.setState({
-                    movies: response.data
-                });
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+    constructor() {
+        super();
+
+        this.state = {};
     }
 
-
     render() {
-        // If the state isn't initialized, this will throw on runtime
-        // before the data is initially loaded
-        const { movies } = this.state;
+        const { movie } = this.props;
 
-        // Before the movies have been loaded
-        if (!movies) return <div className="main-view" />;
+        if (!movie) return null;
 
         return (
-            <div className="main-view">
-                { movies.map(movie => (
-                    <div className="movie-card" key={movie._id}>{movie.Title}</div>
-                ))}
+            <div className="movie-view">
+                <img className="movie-poster" src={movie.ImagePath} />
+                <div className="movie-title">
+                    <span className="label">Title: </span>
+                    <span className="value">{movie.Title}</span>
+                </div>
+                <div className="movie-description">
+                    <span className="label">Description: </span>
+                    <span className="value">{movie.Description}</span>
+                </div>
+
+                <div className="movie-genre">
+                    <span className="label">Genre: </span>
+                    <span className="value">{movie.Genre.Name}</span>
+                </div>
+                <div className="movie-director">
+                    <span className="label">Director: </span>
+                    <span className="value">{movie.Director.Name}</span>
+                </div>
             </div>
+
+
         );
     }
 }
