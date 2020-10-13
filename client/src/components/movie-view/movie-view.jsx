@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 export class MovieView extends React.Component {
 
     constructor() {

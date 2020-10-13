@@ -1,4 +1,19 @@
+import React from 'react';
+import axios from 'axios';
+
+import { MovieCard } from '../movie-card/movie-card';
+import { MovieView } from '../movie-view/movie-view';
+
 export class MainView extends React.Component {
+
+    constructor() {
+        super();
+
+        this.state = {
+            movies: null,
+            selectedMovie: null
+        };
+    }
 
     // One of the "hooks" available in a React Component
     componentDidMount() {
@@ -12,6 +27,11 @@ export class MainView extends React.Component {
             .catch(function (error) {
                 console.log(error);
             });
+    }
+    onMovieClick(movie) {
+        this.setState({
+            selectedMovie: movie
+        });
     }
 
 
