@@ -1,6 +1,6 @@
 const express = require("express");
-bodyParser = require("body-parser");
-uuid = require("uuid");
+const bodyParser = require("body-parser");
+const uuid = require("uuid");
 const morgan = require("morgan");
 const app = express();
 require('dotenv').config()
@@ -21,10 +21,10 @@ const auth = require("./auth")(app);
 /*Integrating Mongoose with a REST API*/
 const mongoose = require("mongoose");
 const Models = require("./models.js");
-Movies = Models.Movie;
-Users = Models.User;
-Genres = Models.Genre;
-Directors = Models.Director;
+const Movies = Models.Movie;
+const Users = Models.User;
+const Genres = Models.Genre;
+const Directors = Models.Director;
 
 /* Mongoose local data base connection*/
 /*mongoose.connect('mongodb://localhost:27017/myFlixDB', { useNewUrlParser: true, useUnifiedTopology: true })*/
