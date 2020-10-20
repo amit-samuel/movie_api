@@ -57,7 +57,8 @@ app.use(
 let allowedOrigins = ['http://localhost:8080',
     'http://testsite.com',
     'https://intense-taiga-38394.herokuapp.com',
-    'https://myflixmovieapp.herokuapp.com'];
+    'https://myflixmovieapp.herokuapp.com',
+    'http://localhost:1234 '];
 
 
 

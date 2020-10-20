@@ -36,18 +36,19 @@ export class MainView extends React.Component {
 
 
     render() {
-        // If the state isn't initialized, this will throw on runtime
-        // before the data is initially loaded
-        const { movies } = this.state;
+        const { movies, selectedMovie } = this.state;
 
         // Before the movies have been loaded
         if (!movies) return <div className="main-view" />;
 
         return (
             <div className="main-view">
-                { movies.map(movie => (
-                    <MovieCard key={movie._id} movie={movie} />//<div className="movie-card" key={movie._id}>{movie.Title}</div>
-                ))}
+                {selectedMovie
+                    ? <MovieView movie={selectedMovie} />
+                    : movies.map(movie => (
+                        <MovieCard key={movie._id} movie={movie} onClick={movie => this.onMovieClick(movie)} />
+                    ))
+                }
             </div>
         );
     }
