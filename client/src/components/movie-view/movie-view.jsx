@@ -13,7 +13,7 @@ export class MovieView extends React.Component {
         const { movie } = this.props;
 
         if (!movie) return null;
-
+        console.log("Movie-view");
         return (
             <div className="movie-view">
                 <img className="movie-poster" src={movie.ImagePath} />
