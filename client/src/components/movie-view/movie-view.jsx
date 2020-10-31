@@ -34,8 +34,8 @@ export class MovieView extends React.Component {
                     <span className="label">Director: </span>
                     <span className="value">{movie.Director.Name}</span>
                 </div>
-                <div className="return-button">
-                    <button to={"/"}>Return</button>
+                <div onClick={() => onClick(movie)} className="main-view">
+                    <button>Return</button>
                 </div>
             </div>
 
