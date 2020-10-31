@@ -34,7 +34,9 @@ export class MovieView extends React.Component {
                     <span className="label">Director: </span>
                     <span className="value">{movie.Director.Name}</span>
                 </div>
-                <button>Return</button>
+                <link className="return-button" to={"http://localhost:1234/"}>
+                    <button>Return</button>
+                </link>
             </div>
 
 
