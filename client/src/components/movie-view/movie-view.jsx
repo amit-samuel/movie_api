@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { MainView } from '../movie-view/main-view';
 
 export class MovieView extends React.Component {
 
@@ -34,7 +35,7 @@ export class MovieView extends React.Component {
                     <span className="label">Director: </span>
                     <span className="value">{movie.Director.Name}</span>
                 </div>
-                <div onClick={movie => this.onMovieClick(movie)} className="movie-view">
+                <div onClick={MainView => this.onMovieClick(MainView)}>
                     <button>Return</button>
                 </div>
             </div>
