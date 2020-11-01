@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MainView } from '../movie-view/main-view';
+
 
 export class MovieView extends React.Component {
 
