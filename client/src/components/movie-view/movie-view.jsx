@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 
 
 
@@ -35,9 +36,9 @@ export class MovieView extends React.Component {
                     <span className="label">Director: </span>
                     <span className="value">{movie.Director.Name}</span>
                 </div>
-                <div onClick={MainView => this.shouldComponentUpdate.MainView}>
-                    <button>Return</button>
-                </div>
+                <Link to={"/"}>
+                    <button variant="link" className="movie-view-back">Return</button>
+                </Link>
             </div>
 
 
