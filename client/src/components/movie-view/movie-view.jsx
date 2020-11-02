@@ -9,7 +9,8 @@ export class MovieView extends React.Component {
     constructor() {
         super();
 
-        this.state = {};
+        this.state = { howComponent: false };
+
     }
 
     render() {
@@ -37,7 +38,7 @@ export class MovieView extends React.Component {
                     <span className="label">Director: </span>
                     <span className="value">{movie.Director.Name}</span>
                 </div>
-                <div onClick={() => <MainView />}>
+                <div onClick={this.state.showComponent && <MainView />}>
                     <button>Return</button>
                 </div>
             </div>
