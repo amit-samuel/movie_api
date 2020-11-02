@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from "react-router-dom";
+import { MainView } from '../main-view/main-view';
 
 
 
@@ -36,9 +37,9 @@ export class MovieView extends React.Component {
                     <span className="label">Director: </span>
                     <span className="value">{movie.Director.Name}</span>
                 </div>
-                <Link to={"/"}>
-                    <button variant="link" className="movie-view-back">Return</button>
-                </Link>
+                <div onClick={() => <MainView />}>
+                    <button>Return</button>
+                </div>
             </div>
 
 
