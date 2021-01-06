@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
